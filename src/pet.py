@@ -685,8 +685,8 @@ class PET(torch.nn.Module):
                     output_messages, mask, nums, central_species, multipliers, target_indices
                 )
             q_predictions = q_predictions + q_layer
-            print('q_shape:', q_predictions.shape, '\n','e_sr_shape',atomic_predictions.shape)
-            print('central_token shape', result["central_token"].shape)
+        print('q_shape:', q_predictions.shape,'\n','e_sr_atomic_shape',atomic_predictions.shape)
+        print('central_token shape', result["central_token"].shape)
 
         if self.TARGET_TYPE == "structural":
             if self.TARGET_AGGREGATION == "sum":
