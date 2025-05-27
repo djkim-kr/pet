@@ -568,6 +568,14 @@ class PET(torch.nn.Module):
         self.messages_predictors = torch.nn.ModuleList(
             [MessagesPredictor(hypers, head) for head in heads]
         )
+        self.central_tokens_q_predictors = torch.nn.ModuleList([
+            CentralTokensPredictor(hypers, Head(hypers, transformer_d_model, head_n_neurons))
+            for _ in range(n_gnn_layers)
+        ])
+        self.messages_q_predictors = torch.nn.ModuleList([
+            MessagesPredictor(hypers, Head(hypers, transformer_d_model, head_n_neurons))
+            for _ in range(n_gnn_layers)
+])
 
         if hypers.USE_BOND_ENERGIES:
             bond_heads = []
@@ -629,6 +637,7 @@ class PET(torch.nn.Module):
 
         batch_dict["input_messages"] = self.embedding(neighbor_species)
         atomic_predictions = torch.zeros(1, dtype=x.dtype, device=x.device)
+        q_predictions = torch.zeros(1, dtype=x.dtype, device=x.device)
 
         for layer_index, (
             central_tokens_predictor,
@@ -667,6 +676,17 @@ class PET(torch.nn.Module):
                 atomic_predictions = atomic_predictions + messages_bonds_predictor(
                     output_messages, mask, nums, central_species, multipliers, target_indices
                 )
+            if "central_token" in result:
+                q_layer = self.central_tokens_q_predictors[layer_index](
+                    result["central_token"], central_species, target_indices
+                )
+            else:
+                q_layer = self.messages_q_predictors[layer_index](
+                    output_messages, mask, nums, central_species, multipliers, target_indices
+                )
+            q_predictions = q_predictions + q_layer
+            print('q_shape:', q_predictions.shape, '\n','e_sr_shape',atomic_predictions.shape)
+            print('central_token shape', result["central_token"].shape)
 
         if self.TARGET_TYPE == "structural":
             if self.TARGET_AGGREGATION == "sum":
