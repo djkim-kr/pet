@@ -1,0 +1,11 @@
+BootStrap: docker
+From: pytorch/pytorch
+
+%post
+    apt-get -y update
+
+    python3 -m pip install numpy scipy ase pathos jupyter scikit-learn
+    
+    python3 -m pip install pyg-lib torch-scatter torch-sparse torch-cluster torch-spline-conv torch-geometric -f https://data.pyg.org/whl/torch-1.13.0+cu116.html
+   
+   

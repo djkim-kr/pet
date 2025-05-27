@@ -687,7 +687,7 @@ class PET(torch.nn.Module):
             q_predictions = q_predictions + q_layer
         print('q_shape:', q_predictions.shape,'\n','e_sr_atomic_shape',atomic_predictions.shape)
         print('central_token shape', result["central_token"].shape)
-
+        print(batch_dict.keys())
         if self.TARGET_TYPE == "structural":
             if self.TARGET_AGGREGATION == "sum":
                 return torch_geometric.nn.global_add_pool(
